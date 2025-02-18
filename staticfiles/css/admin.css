@@ -1,0 +1,47 @@
+/* Sidebar Styles */
+.sidebar {
+    height: 100vh;
+    position: fixed;
+    top: 50px;
+    left: 0;
+    width: 250px;
+    padding: 20px 10px;
+}
+
+.sidebar-image {
+    height: 100px;
+    width: 100%;
+    background: url('../images/voting.jpg') center/cover no-repeat;
+    margin-bottom: 20px;
+}
+
+.sidebar-profile {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid white;
+    margin-bottom: 15px;
+}
+
+/* Sidebar Links */
+.nav-link {
+    color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.nav-link:hover, .nav-link.active-section {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Content Section */
+.content-section {
+    display: none;
+    padding-top: 80px; /* Adjust this value based on navbar height */
+    margin-left: 90px;
+}
+
+.content-section:first-of-type {
+    display: block;
+}

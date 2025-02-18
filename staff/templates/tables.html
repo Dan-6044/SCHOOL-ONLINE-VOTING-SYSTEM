@@ -1,0 +1,247 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/script.css' %}">
+
+<!-- 🔹 Top Navbar -->
+<nav class="navbar px-3 navbar-light fixed-top bg-white shadow">
+    <img src="{% static 'images/favicon.png' %}" alt="Logo" class="ms-3" width="50">
+    <span class="navbar-brand">Voting System Admin</span>
+    <div class="d-flex align-items-center">
+        <div class="dropdown">
+            <button class="btn p-0 border-0 rounded-circle" type="button" data-bs-toggle="dropdown">
+                <img src="{% if profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}{% static 'images/avatar.png' %}{% endif %}" 
+                    alt="Profile" 
+                     class="rounded-circle border border-secondary" 
+                     width="35" height="35">
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg p-3" style="width: 340px; left: auto; right: 0;">
+                <li><a class="dropdown-item text-start" href="#">My Profile</a></li>
+                <li><a class="dropdown-item text-start" href="#">My Account</a></li>
+                <hr class="mx-auto" style="width: 90%;">
+                <a href="{% url 'logout' %}" class="btn btn-primary text-danger" style="width: 90%;">Logout</a>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid vh-100 p-0">
+    <div class="row g-0 h-100">
+        <!-- Sidebar Column -->
+        <div class="col-md-3 col-lg-2 p-0">
+            <div class="sidebar p-3 shadow bg-white text-secondary" 
+                style="position: fixed; top: 50px; left: 0; width: 250px; height: calc(95vh - 50px); overflow-y: auto;">
+                <!-- Sidebar Image (Full Width) -->
+                <div class="sidebar-image position-absolute" 
+                     style="height: 30%; width: 100%; top: 0; left: 0; right: 0;
+                            background: url('{% static "images/voting.jpg" %}') center/cover no-repeat;">
+                </div>
+                <!-- Profile Image -->
+                <img src="{% if profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}{% static 'images/avatar.png' %}{% endif %}" 
+                    alt="Profile" 
+                     class="position-absolute rounded-circle border border-light" 
+                     width="50" height="50" 
+                     style="top: 10px; left: 10px; z-index: 10;">
+                
+                <!-- Sidebar Links -->
+                <ul class="nav flex-column position-relative" style="z-index: 10; margin-top: 80%;" id="adminTabs">
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'dashboard' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-house-door me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'add_voter' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-person-plus me-2"></i> Add Voter
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'add_candidate' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-person-badge me-2"></i> Add Candidate
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'tables' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-table me-2"></i> Tables
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'reports' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-file-earmark-bar-graph me-2"></i> Generate Reports
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Content Column -->
+        <div class="col-md-9 col-lg-10 offset-md-3 offset-lg-2 p-4" style="margin-top: -20px; margin-left: 250px;">
+            <!-- Box Container -->
+            <div class="card shadow-lg p-4" id="contentBox" style="height: calc(92vh - 70px); overflow-y: auto;">
+               <div class="container mt-4">
+                    <!-- Toggle Menu -->
+                    <div class="d-flex justify-content-center mb-3">
+                        <h5 class="me-4 table-toggle active" data-table="voters">Voters</h5>
+                        <h5 class="me-4 table-toggle" data-table="candidates">Candidates</h5>
+                        <h5 class="table-toggle" data-table="votes">Votes</h5>
+                    </div>
+
+                    <!-- Tables Container -->
+                    <div class="table-container" id="dynamicContent">
+                        <!-- Voters Table (Visible by Default) -->
+                        <table class="table table-bordered table-striped" id="voters-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Adm No</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Voters Code</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for voter in voters %}
+                                <tr>
+                                    <td>{{ voter.reg_number}}</td>
+                                    <td>{{ voter.name }}</td>
+                                    <td>{{ voter.email }}</td>
+                                    <td>{{ voter.department }}</td>
+                                    <td>{{ voter.voter_code }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <!-- Candidates Table (Hidden by Default) -->
+                        <table class="table table-bordered table-striped d-none" id="candidates-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Adm No</th>
+                                    <th>Profile Picture</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Course</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for candidate in candidates %}
+                                <tr>
+                                    <td>{{ candidate.admission_number}}</td>
+                                    <td><img src="{{ candidate.profile_picture.url }}" alt="Profile" width="50" height="50"></td>
+                                    <td>{{ candidate.name }}</td>
+                                    <td>{{ candidate.email }}</td>
+                                    <td>{{ candidate.department }}</td>
+                                    <td>{{ candidate.course }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <!-- Votes Table (Hidden by Default) -->
+                        <table class="table table-bordered table-striped d-none" id="votes-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Profile Picture</th>
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Course</th>
+                                    <th>Votes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for candidate in candidates %}
+                                <tr>
+                                    <td><img src="{{ candidate.profile_picture.url }}" alt="Profile" width="50" height="50"></td>
+                                    <td>{{ candidate.name }}</td>
+                                    <td>{{ candidate.department }}</td>
+                                    <td>{{ candidate.course }}</td>
+                                    <td>{{ candidate.votes }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS -->
+<style>
+    /* Remove scrollbars from the entire page */
+    html, body {
+        overflow: hidden;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Ensure the container takes full height */
+    .container-fluid {
+        height: 98vh;
+        overflow: hidden;
+    }
+
+    /* Sidebar styling */
+    .sidebar {
+        overflow-y: auto; /* Allow scrolling inside the sidebar if needed */
+    }
+
+    /* Remove default margin and padding */
+    .row, .col-md-9, .col-lg-10 {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+<!-- CSS for Styling -->
+<style>
+    .table-toggle {
+        cursor: pointer;
+        font-weight: bold;
+        padding: 8px 16px;
+        border-bottom: 2px solid transparent;
+    }
+    .table-toggle.active {
+        border-bottom: 2px solid blue;
+        color: blue;
+    }
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tableToggles = document.querySelectorAll(".table-toggle");
+    const tables = {
+        voters: document.getElementById("voters-table"),
+        candidates: document.getElementById("candidates-table"),
+        votes: document.getElementById("votes-table")
+    };
+
+    tableToggles.forEach(toggle => {
+        toggle.addEventListener("click", function () {
+            const tableToShow = this.getAttribute("data-table");
+            
+            // Hide all tables
+            Object.values(tables).forEach(table => table.classList.add("d-none"));
+            
+            // Show the selected table
+            tables[tableToShow].classList.remove("d-none");
+            
+            // Remove active class from all toggles
+            tableToggles.forEach(t => t.classList.remove("active"));
+            
+            // Add active class to the clicked toggle
+            this.classList.add("active");
+        });
+    });
+});
+
+</script>
+
+{% endblock %}

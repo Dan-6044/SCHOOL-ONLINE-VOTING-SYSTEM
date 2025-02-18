@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Voting Page{% endblock %}
+{% load static %}
+
+{% block content %}
+<!-- 🔹 Top Navbar -->
+<nav class="navbar px-3 navbar-light fixed-top bg-white shadow">
+    <img src="{% static 'images/favicon.png' %}" alt="Logo" class="ms-3" width="50">
+    <span class="navbar-brand">Voting System Admin</span>
+    <div class="d-flex align-items-center">
+         <!-- Logout Button -->
+    <div class="d-flex justify-content-end mt-3">
+        <a href="{% url 'logout_voter' %}" class="btn btn-outline-danger">Logout</a>
+    </div>
+    </div>
+</nav>
+<div class="container">
+       {% if candidates %}
+        <h2 class="text-center text-info mt-4">Department's Candidates</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-3">
+            {% for candidate in candidates %}
+                <div class="col">
+                    <div class="card shadow-lg w-75 mx-auto">
+                        <img src="{{ candidate.profile_picture.url }}" class="card-img-top candidate-img" alt="{{ candidate.name }}">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Name: {{ candidate.name }}</h5>
+                            <p class="card-text text-primary">Department: {{ candidate.department }}</p>
+                            <p class="card-text text-success">Course: {{ candidate.course }}</p>
+                            <p class="card-text text-warning">Position: Delegates</p>
+
+                            {% if voter.voted_candidate and voter.voted_candidate.id == candidate.id %}
+                                <button class="btn btn-danger" onclick="window.location.href='{% url 'unvote' candidate.id %}'">Un-Vote</button>
+                            {% else %}
+                                <button class="btn btn-primary" onclick="window.location.href='{% url 'vote' candidate.id %}'" {% if voter.voted_candidate %}disabled{% endif %}>Vote</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="d-flex justify-content-center align-items-center" style="height: 60vh;">
+        <p class="text-center text-danger fs-4">No candidates available for your department.</p>
+       </div>
+    {% endif %}
+</div>
+
+<style>
+    .candidate-img {
+        height: 200px;
+        object-fit: cover;
+    }
+    .card {
+        height: 100%;
+    }
+</style>
+
+{% endblock %}

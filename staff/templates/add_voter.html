@@ -1,0 +1,195 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/script.css' %}">
+
+<!-- 🔹 Top Navbar -->
+<nav class="navbar px-3 navbar-light fixed-top bg-white shadow">
+    <img src="{% static 'images/favicon.png' %}" alt="Logo" class="ms-3" width="50">
+    <span class="navbar-brand">Voting System Admin</span>
+    <div class="d-flex align-items-center">
+        <div class="dropdown">
+            <button class="btn p-0 border-0 rounded-circle" type="button" data-bs-toggle="dropdown">
+                <img src="{% if profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}{% static 'images/avatar.png' %}{% endif %}" 
+                    alt="Profile" 
+                     class="rounded-circle border border-secondary" 
+                     width="35" height="35">
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg p-3" style="width: 340px; left: auto; right: 0;">
+                <li><a class="dropdown-item text-start" href="#">My Profile</a></li>
+                <li><a class="dropdown-item text-start" href="#">My Account</a></li>
+                <hr class="mx-auto" style="width: 90%;">
+                <a href="{% url 'logout' %}" class="btn btn-primary text-danger" style="width: 90%;">Logout</a>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid vh-100 p-0">
+    <div class="row g-0 h-100">
+        <!-- Sidebar Column -->
+        <div class="col-md-3 col-lg-2 p-0">
+            <div class="sidebar p-3 shadow bg-white text-secondary" 
+                style="position: fixed; top: 50px; left: 0; width: 250px; height: calc(95vh - 50px); overflow-y: auto;">
+                <!-- Sidebar Image (Full Width) -->
+                <div class="sidebar-image position-absolute" 
+                     style="height: 30%; width: 100%; top: 0; left: 0; right: 0;
+                            background: url('{% static "images/voting.jpg" %}') center/cover no-repeat;">
+                </div>
+                <!-- Profile Image -->
+                <img src="{% if profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}{% static 'images/avatar.png' %}{% endif %}" 
+                    alt="Profile"  
+                     class="position-absolute rounded-circle border border-light" 
+                     width="50" height="50" 
+                     style="top: 10px; left: 10px; z-index: 10;">
+                
+                <!-- Sidebar Links -->
+                <ul class="nav flex-column position-relative" style="z-index: 10; margin-top: 80%;" id="adminTabs">
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'dashboard' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-house-door me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'add_voter' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-person-plus me-2"></i> Add Voter
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'add_candidate' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-person-badge me-2"></i> Add Candidate
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'tables' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-table me-2"></i> Tables
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'reports' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-file-earmark-bar-graph me-2"></i> Generate Reports
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Content Column -->
+        <div class="col-md-9 col-lg-10 offset-md-3 offset-lg-2 p-4" style="margin-top: -20px; margin-left: 250px;">
+            <!-- Box Container -->
+            <div class="card shadow-lg p-4" id="contentBox" style="height: calc(92vh - 70px); overflow-y: auto;">
+<h3 class="text-center">Add Voter</h3>
+    
+    <form id="voterForm" action="{% url 'add_voter' %}" method="POST">
+
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="voterName">Name</label>
+            <input type="text" class="form-control" name="voter_name" id="voterName" required>
+        </div>
+        <div class="mb-3">
+            <label for="voterEmail">Email</label>
+            <input type="email" class="form-control" name="voter_email" id="voterEmail" required>
+        </div>
+        <div class="mb-3">
+            <label for="regNumber">Registration Number</label>
+            <input type="text" class="form-control" name="reg_number" id="regNumber" required>
+        </div>
+        <div class="mb-3">
+            <label for="department">Department</label>
+            <select class="form-control" name="department" id="department" required>
+                <option value="" disabled selected>Select Department</option>
+                <option value="Accounting & Finance">Accounting & Finance</option>
+                <option value="Business Administration & Management">Business Administration & Management</option>
+                <option value="Economics & Statistics">Economics & Statistics</option>
+                <option value="Software Development & Information">Software Development & Information</option>
+                <option value="Applied Computing & Network">Applied Computing & Network</option>
+                <option value="Education & Physical Studies">Education & Physical Studies</option>
+                <option value="Performing Arts, Film, Media & Economic Studies">Performing Arts, Film, Media & Economic Studies</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Add Voter</button>
+    </form>
+<div id="message-box" class="alert" style="display: none;"></div>
+
+            </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS -->
+<style>
+    /* Remove scrollbars from the entire page */
+    html, body {
+        overflow: hidden;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Ensure the container takes full height */
+    .container-fluid {
+        height: 98vh;
+        overflow: hidden;
+    }
+
+    /* Sidebar styling */
+    .sidebar {
+        overflow-y: auto; /* Allow scrolling inside the sidebar if needed */
+    }
+
+    /* Remove default margin and padding */
+    .row, .col-md-9, .col-lg-10 {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+<!-- CSS for Styling -->
+<style>
+    .table-toggle {
+        cursor: pointer;
+        font-weight: bold;
+        padding: 8px 16px;
+        border-bottom: 2px solid transparent;
+    }
+    .table-toggle.active {
+        border-bottom: 2px solid blue;
+        color: blue;
+    }
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tableToggles = document.querySelectorAll(".table-toggle");
+    const tables = {
+        voters: document.getElementById("voters-table"),
+        candidates: document.getElementById("candidates-table"),
+        votes: document.getElementById("votes-table")
+    };
+
+    tableToggles.forEach(toggle => {
+        toggle.addEventListener("click", function () {
+            const tableToShow = this.getAttribute("data-table");
+            
+            // Hide all tables
+            Object.values(tables).forEach(table => table.classList.add("d-none"));
+            
+            // Show the selected table
+            tables[tableToShow].classList.remove("d-none");
+            
+            // Remove active class from all toggles
+            tableToggles.forEach(t => t.classList.remove("active"));
+            
+            // Add active class to the clicked toggle
+            this.classList.add("active");
+        });
+    });
+});
+
+</script>
+
+{% endblock %}

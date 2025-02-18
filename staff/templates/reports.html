@@ -1,0 +1,258 @@
+{% extends 'master.html' %}
+{% load static %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/script.css' %}">
+
+
+<!-- 🔹 Top Navbar -->
+<nav class="navbar px-3 navbar-light fixed-top bg-white shadow">
+    <img src="{% static 'images/favicon.png' %}" alt="Logo" class="ms-3" width="50">
+    <span class="navbar-brand">Voting System Admin</span>
+    <div class="d-flex align-items-center">
+        <div class="dropdown">
+            <button class="btn p-0 border-0 rounded-circle" type="button" data-bs-toggle="dropdown">
+                <img src="{% if profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}{% static 'images/avatar.png' %}{% endif %}" 
+                    alt="Profile" 
+                     class="rounded-circle border border-secondary" 
+                     width="35" height="35">
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg p-3" style="width: 340px; left: auto; right: 0;">
+                <li><a class="dropdown-item text-start" href="#">My Profile</a></li>
+                <li><a class="dropdown-item text-start" href="#">My Account</a></li>
+                <hr class="mx-auto" style="width: 90%;">
+                <a href="{% url 'logout' %}" class="btn btn-primary text-danger" style="width: 90%;">Logout</a>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid vh-100 p-0">
+    <div class="row g-0 h-100">
+        <!-- Sidebar Column -->
+        <div class="col-md-3 col-lg-2 p-0">
+            <div class="sidebar p-3 shadow bg-white text-secondary" 
+                style="position: fixed; top: 50px; left: 0; width: 250px; height: calc(95vh - 50px); overflow-y: auto;">
+                <!-- Sidebar Image (Full Width) -->
+                <div class="sidebar-image position-absolute" 
+                     style="height: 30%; width: 100%; top: 0; left: 0; right: 0;
+                            background: url('{% static "images/voting.jpg" %}') center/cover no-repeat;">
+                </div>
+                <!-- Profile Image -->
+                <img src="{% if profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}{% static 'images/avatar.png' %}{% endif %}" 
+                    alt="Profile"  
+                     class="position-absolute rounded-circle border border-light" 
+                     width="50" height="50" 
+                     style="top: 10px; left: 10px; z-index: 10;">
+                
+                <!-- Sidebar Links -->
+                <ul class="nav flex-column position-relative" style="z-index: 10; margin-top: 80%;" id="adminTabs">
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'dashboard' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-house-door me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'add_voter' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-person-plus me-2"></i> Add Voter
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'add_candidate' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-person-badge me-2"></i> Add Candidate
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'tables' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-table me-2"></i> Tables
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a href="{% url 'reports' %}" class="nav-link text-dark d-flex align-items-center ">
+                            <i class="bi bi-file-earmark-bar-graph me-2"></i> Generate Reports
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Content Column -->
+        <div class="col-md-9 col-lg-10 offset-md-3 offset-lg-2 p-4" style="margin-top: -20px; margin-left: 250px;">
+            <!-- Box Container -->
+            <div class="card shadow-lg p-4" id="contentBox" style="height: calc(92vh - 70px); overflow-y: auto;">
+                <div class="small-container mt-4">
+                <h3 class="text-center">Generate Reports</h3>
+
+                <!-- First Row: Bar Chart & Table -->
+                <div class="row g-3">
+                    <!-- Bar Chart (60%) -->
+                    <div class="col-md-7">
+                        <div class="p-3 mb-4 bg-white shadow rounded report-container">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Table (40%) -->
+                    <div class="col-md-5">
+                        <div class="p-3 mb-4 bg-white shadow rounded report-container table-container">
+                            <table class="table table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Department</th>
+                                        <th>Total Voters</th>
+                                        <th>Total Candidates</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in department_data %}
+                                    <tr>
+                                        <td>{{ row.department }}</td>
+                                        <td>{{ row.voters }}</td>
+                                        <td>{{ row.candidates }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Row: Pie Chart & Line Graph -->
+                <div class="row g-3">
+                    <!-- Pie Chart (40%) -->
+                    <div class="col-md-5">
+                        <div class="p-3 mb-4 bg-white shadow rounded report-container">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Line Graph (60%) -->
+                    <div class="col-md-7">
+                        <div class="p-3 mb-4 bg-white shadow rounded report-container">
+                            <canvas id="lineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS -->
+<style>
+    /* Remove scrollbars from the entire page */
+    html, body {
+        overflow: hidden;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Ensure the container takes full height */
+    .container-fluid {
+        height: 98vh;
+        overflow: hidden;
+    }
+
+    /* Sidebar styling */
+    .sidebar {
+        overflow-y: auto; /* Allow scrolling inside the sidebar if needed */
+    }
+
+    /* Remove default margin and padding */
+    .row, .col-md-9, .col-lg-10 {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Bar Chart
+    const barChartCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barChartCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for row in department_data %}"{{ row.department }}",{% endfor %}],
+            datasets: [
+                {
+                    label: 'Total Voters',
+                    data: [{% for row in department_data %}{{ row.voters }},{% endfor %}],
+                    backgroundColor: 'blue'
+                },
+                {
+                    label: 'Total Candidates',
+                    data: [{% for row in department_data %}{{ row.candidates }},{% endfor %}],
+                    backgroundColor: 'red'
+                }
+            ]
+        }
+    });
+
+    // Pie Chart
+    const pieChartCtx = document.getElementById('pieChart').getContext('2d');
+    new Chart(pieChartCtx, {
+        type: 'pie',
+        data: {
+            labels: [{% for key in pie_chart_data.keys %}"{{ key }}",{% endfor %}],
+            datasets: [{
+                data: [{% for value in pie_chart_data.values %}{{ value }},{% endfor %}],
+                backgroundColor: ['blue', 'red', 'green', 'orange', 'purple']
+            }]
+        }
+    });
+
+    // Line Chart
+    const lineChartCtx = document.getElementById('lineChart').getContext('2d');
+    new Chart(lineChartCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for label in line_graph_data.labels %}"{{ label }}",{% endfor %}],
+            datasets: [{
+                label: 'Comparison',
+                data: [{% for value in line_graph_data.values %}{{ value }},{% endfor %}],
+                borderColor: 'blue',
+                borderWidth: 2,
+                fill: false
+            }]
+        }
+    });
+</script>
+
+<!-- Custom CSS -->
+<style>
+    .small-container {
+        max-width: 1000px; /* Adjust width for admin panel */
+        margin: auto; /* Center content */
+    }
+
+    .report-container {
+        min-height: 300px; /* Ensures uniform height */
+        max-height: 300px; /* Prevents expansion */
+        overflow: hidden;  /* Prevents unwanted overflow */
+        width: 100%; /* Ensures it fits in small width */
+    }
+
+    .table-container {
+        overflow-y: auto;
+    }
+
+    .table tbody {
+        display: block;
+        max-height: 300px; /* Enables scrollbar inside table */
+        overflow-y: auto;
+    }
+
+    .table thead, .table tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed; /* Prevents shifting of column widths */
+    }
+</style>
+
+{% endblock %}
